@@ -16,7 +16,7 @@ services:
       - pg_data:/var/lib/postgresql/data
 
   backend:
-    image: kykito/kittygram_final_backend:latest
+    image: ceosea/kittygram_final_backend:latest
     env_file: .env
     restart: always
     depends_on:
@@ -26,7 +26,7 @@ services:
       - media:/app/media
 
   frontend:
-    image: kykito/kittygram_final_frontend:latest
+    image: ceosea/kittygram_final_frontend:latest
     env_file: .env
     restart: always
     command: cp -r /app/build/. /frontend_static/
@@ -34,7 +34,7 @@ services:
       - static:/frontend_static
 
   gateway:
-    image: kykito/kittygram_final_gateway:latest
+    image: ceosea/kittygram_final_gateway:latest
     env_file: .env
     ports:
       - 80:80
