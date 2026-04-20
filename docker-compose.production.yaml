@@ -1,47 +1,43 @@
-version: "3"
-
-volumes:
-  static:
-  media:
-  pg_data:
+version: '3.8'
 
 services:
-
   postgres:
-    container_name: postgres
     image: postgres:13
+    container_name: postgres
     env_file: .env
-    restart: always
     volumes:
       - pg_data:/var/lib/postgresql/data
 
   backend:
-    image: ceosea/kittygram_final_backend:latest
+    image: ceosea/kittygram_backend:latest
+    container_name: backend
     env_file: .env
-    restart: always
+    volumes:
+      - static:/app/collected_static
+      - media:/app/media
     depends_on:
       - postgres
-    volumes:
-      - static:/backend_static
-      - media:/app/media
 
   frontend:
-    image: ceosea/kittygram_final_frontend:latest
-    env_file: .env
-    restart: always
-    command: cp -r /app/build/. /frontend_static/
+    image: ceosea/kittygram_frontend:latest
+    container_name: frontend
+    command: npx -y http-server -p 8000 /app/build
     volumes:
-      - static:/frontend_static
+      - static:/app/build
 
   gateway:
-    image: ceosea/kittygram_final_gateway:latest
-    env_file: .env
+    image: ceosea/kittygram_gateway:latest
+    container_name: gateway
     ports:
-      - 80:80
-    restart: always
+      - "9000:80"
+    volumes:
+      - static:/static
+      - media:/media
     depends_on:
       - backend
       - frontend
-    volumes:
-      - static:/static/
-      - media:/media
+
+volumes:
+  pg_data:
+  static:
+  media:

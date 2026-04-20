@@ -1,45 +1,42 @@
-version: "3"
-
-volumes:
-  static:
-  media:
-  pg_data:
+version: '3.8'
 
 services:
-
   postgres:
     image: postgres:13
+    container_name: postgres
     env_file: .env
-    restart: always
     volumes:
       - pg_data:/var/lib/postgresql/data
 
-  backend-1:
-    build: ./backend/
+  backend:
+    build: ./backend
+    container_name: backend
     env_file: .env
-    restart: always
+    volumes:
+      - static:/app/collected_static
+      - media:/app/media
     depends_on:
       - postgres
-    volumes:
-      - static:/backend_static
-      - media:/app/media
 
   frontend:
-    build: ./frontend/
-    env_file: .env
-    restart: always
-    command: cp -r /app/build/. /frontend_static/
+    build: ./frontend
+    container_name: frontend
     volumes:
-      - static:/frontend_static
+      - static:/app/build
 
   gateway:
-    build: ./nginx/
-    env_file: .env
+    build: ./nginx
+    container_name: gateway
     ports:
-      - 80:80
-    restart: always
-    depends_on:
-      - backend-1
-      - frontend
+      - "9000:80"
     volumes:
-      - static:/static/
+      - static:/static
+      - media:/media
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  pg_data:
+  static:
+  media:
