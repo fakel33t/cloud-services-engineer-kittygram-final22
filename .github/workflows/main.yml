@@ -81,7 +81,15 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           source: "docker-compose.production.yml"
-          target: "kittygram"
+          target: "cloud-services-engineer-kittygram-final"
+      - name: Copy .env via ssh
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: ".env"
+          target: "cloud-services-engineer-kittygram-final"
       - name: Executing remote ssh commands to deploy
         uses: appleboy/ssh-action@master
         with:
@@ -89,12 +97,13 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd kittygram
+            cd cloud-services-engineer-kittygram-final
             sudo docker compose -f docker-compose.production.yml pull
             sudo docker compose -f docker-compose.production.yml down
             sudo docker compose -f docker-compose.production.yml up -d
+            sleep 10
             sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
-            sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic --no-input
+            sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic --noinput
 
   auto_tests:
     runs-on: ubuntu-latest
